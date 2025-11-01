@@ -1,5 +1,37 @@
 # Sampling training data with correct initial conditions
 import torch
+from torch.utils.data import TensorDataset, DataLoader
+
+def create_dataloaders(data, batch_size=256):
+    """
+    Create DataLoaders for batched training
+    
+    Args:
+        data: Tuple of all training data
+        batch_size: Number of samples per batch
+    
+    Returns:
+        Dictionary of DataLoaders
+    """
+    (xL, tL), (xR, tR), (x_ic, t_ic, rho_ic, u_ic), (x_i, t_i), (x_left, x_right, t_b) = data
+    
+    # Create datasets
+    dataset_L = TensorDataset(xL, tL)
+    dataset_R = TensorDataset(xR, tR)
+    dataset_ic = TensorDataset(x_ic, t_ic, rho_ic, u_ic)
+    dataset_interface = TensorDataset(x_i, t_i)
+    dataset_bc = TensorDataset(x_left, x_right, t_b)
+    
+    # Create dataloaders with shuffling for better training
+    loaders = {
+        'collocation_L': DataLoader(dataset_L, batch_size=batch_size, shuffle=True),
+        'collocation_R': DataLoader(dataset_R, batch_size=batch_size, shuffle=True),
+        'initial': DataLoader(dataset_ic, batch_size=batch_size, shuffle=True),
+        'interface': DataLoader(dataset_interface, batch_size=batch_size, shuffle=True),
+        'boundary': DataLoader(dataset_bc, batch_size=batch_size, shuffle=True)
+    }
+    
+    return loaders
 
 def generate_collocation_points(N_f=2000):
     #Generate collocation points for PDE residual
