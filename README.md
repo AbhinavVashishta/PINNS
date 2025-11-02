@@ -159,4 +159,4 @@ PINN_Project/
 
 This repository is a collaborative project under **Dr. Kirit Makwana's** Computational Physics course (EP4210) at IIT Hyderabad (Fall 2025).
 
-Collaborators: [Abhinandan L](https://github.com/abhinandan2005)  [Abhinav Ganesh Vashishta](https://github.com/AbhinavVashishta)  [Samarth Gupta](https://github.com/samforarth)
+Collaborators: [Abhinandan L](https://github.com/abhinandan2005) | [Abhinav Ganesh Vashishta](https://github.com/AbhinavVashishta) | [Samarth Gupta](https://github.com/samforarth)
