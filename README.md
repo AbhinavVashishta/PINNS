@@ -107,8 +107,6 @@ This will:
 
 ## Results
 
-Below are placeholders for generated results — you can insert your actual images once you have them.
-
 ### Spacetime evolution:
 ![Spacetime plot](https://github.com/AbhinavVashishta/PINNS/blob/main/results/spacetime.png)
 
