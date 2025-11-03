@@ -124,6 +124,7 @@ Each plot visualizes both subdomains and the smooth joining of $\rho$ and $u$ at
 ```
 PINN_Project/
 ├── pinn/
+│   ├── analytical.py    # Contains the analytical solver for the PDE
 │   ├── model.py         # MLP architecture with tanh activations
 │   ├── physics.py       # PDE residual computation
 │   ├── data.py          # Collocation and boundary data generation
