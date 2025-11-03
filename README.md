@@ -77,7 +77,7 @@ Batching allows for memory-efficient updates — each training iteration uses a 
 The total loss is composed of:
 
 $$
-\mathcal{L} = \mathcal{L}_{\text{PDE}} + \mathcal{L}_{\text{IC}} + 10 \cdot \mathcal{L}_{\text{interface}} + \mathcal{L}_{\text{BC}}
+\mathcal{L} = 25 \cdot \mathcal{L}_{\text{PDE}} + 25 \cdot \mathcal{L}_{\text{IC}} + 5 \cdot \mathcal{L}_{\text{interface}} + \mathcal{L}_{\text{BC}}
 $$
 
 where:
