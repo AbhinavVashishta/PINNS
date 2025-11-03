@@ -1,6 +1,8 @@
 import torch
+import numpy as np
 import matplotlib.pyplot as plt
 import os
+from pinn.analytical import analytical_solution
 
 def predict(model, x, t):
     #Predict rho and u from model
@@ -26,8 +28,8 @@ def plot_solution(pinn_L, pinn_R, t_fixed=0.5, save_path=None):
     device = next(pinn_L.parameters()).device
 
     # Generate spatial domain
-    xL = torch.linspace(-1, 0, 200)
-    xR = torch.linspace(0, 1, 200)
+    xL = torch.linspace(-2, 0, 400)
+    xR = torch.linspace(0, 2, 400)
     t = torch.full_like(xL, t_fixed)
 
     # Ensure column shapes
@@ -39,12 +41,16 @@ def plot_solution(pinn_L, pinn_R, t_fixed=0.5, save_path=None):
     rho_L, u_L = predict(pinn_L, xL, t)
     rho_R, u_R = predict(pinn_R, xR, t)
 
+    # Analytical solution
+    rho_analytical, u_analytical = analytical_solution(torch.cat([xL, xR], dim=0).squeeze().numpy(), t_fixed)
+
     # Create subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
     # Plot rho
     ax1.plot(xL.cpu(), rho_L, label="Left Subdomain", color="blue", linewidth=2)
     ax1.plot(xR.cpu(), rho_R, label="Right Subdomain", color="red", linewidth=2)
+    ax1.plot(torch.cat([xL, xR], dim=0).squeeze().numpy(), rho_analytical, 'k--', label="Analytical", linewidth=2, alpha=0.7)
     ax1.axvline(0, color="k", linestyle="--", linewidth=1)
     ax1.set_xlabel("x", fontsize=12)
     ax1.set_ylabel(r"$\rho(x, t)$", fontsize=12)
@@ -55,6 +61,7 @@ def plot_solution(pinn_L, pinn_R, t_fixed=0.5, save_path=None):
     # Plot u
     ax2.plot(xL.cpu(), u_L, label="Left Subdomain", color="blue", linewidth=2)
     ax2.plot(xR.cpu(), u_R, label="Right Subdomain", color="red", linewidth=2)
+    ax2.plot(torch.cat([xL, xR], dim=0).squeeze().numpy(), u_analytical, 'k--', label="Analytical", linewidth=2, alpha=0.7)
     ax2.axvline(0, color="k", linestyle="--", linewidth=1)
     ax2.set_xlabel("x", fontsize=12)
     ax2.set_ylabel(r"$u(x, t)$", fontsize=12)
@@ -72,6 +79,7 @@ def plot_solution(pinn_L, pinn_R, t_fixed=0.5, save_path=None):
 
 def plot_spacetime(pinn_L, pinn_R, save_path=None):
     #Create a spacetime heatmap of the solution
+
     # Create mesh
     x = torch.linspace(-1, 1, 300)
     t = torch.linspace(0, 1, 300)
@@ -121,4 +129,64 @@ def plot_spacetime(pinn_L, pinn_R, save_path=None):
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Spacetime plot saved at: {save_path}")
     
+    plt.show()
+
+def heatmap_loss(pinn_L, pinn_R, save_path= None):
+    # Plot heatmaps of absolute error between analytical and PINN solutions for rho and u.
+    x = torch.linspace(-1, 1, 300)
+    t = torch.linspace(0, 1, 300)
+    X, T = torch.meshgrid(x, t, indexing='ij')
+
+    x_flat = X.flatten().unsqueeze(1)
+    t_flat = T.flatten().unsqueeze(1)
+
+    # Subdomains
+    left_mask = x_flat <= 0
+    right_mask = x_flat > 0
+
+    # PINN predictions
+    rho_L, u_L = predict(pinn_L, x_flat[left_mask.squeeze()], t_flat[left_mask.squeeze()])
+    rho_R, u_R = predict(pinn_R, x_flat[right_mask.squeeze()], t_flat[right_mask.squeeze()])
+
+    # Combine into full domain
+    rho_full = torch.zeros_like(x_flat)
+    u_full = torch.zeros_like(x_flat)
+    rho_full[left_mask.squeeze()] = rho_L
+    rho_full[right_mask.squeeze()] = rho_R
+    u_full[left_mask.squeeze()] = u_L
+    u_full[right_mask.squeeze()] = u_R
+
+    rho_pinn = rho_full.reshape(300, 300).numpy()
+    u_pinn = u_full.reshape(300, 300).numpy()
+
+    # Analytical solution
+    rho_analytical, u_analytical = analytical_solution(X.numpy(), T.numpy())
+    rho_analytical = np.array(rho_analytical)
+    u_analytical = np.array(u_analytical)
+
+    # Absolute error
+    rho_err = np.abs(rho_pinn - rho_analytical)
+    u_err = np.abs(u_pinn - u_analytical)
+
+    # Plot heatmaps
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+    im1 = ax1.contourf(X, T, rho_err, levels=50, cmap='inferno')
+    ax1.set_title('|ρ_PINN - ρ_analytical|')
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('t')
+    plt.colorbar(im1, ax=ax1)
+
+    im2 = ax2.contourf(X, T, u_err, levels=50, cmap='inferno')
+    ax2.set_title('|u_PINN - u_analytical|')
+    ax2.set_xlabel('x')
+    ax2.set_ylabel('t')
+    plt.colorbar(im2, ax=ax2)
+
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"Loss heatmap saved at: {save_path}")
+
     plt.show()
