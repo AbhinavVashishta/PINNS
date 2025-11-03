@@ -34,21 +34,24 @@ if __name__ == "__main__":
     data = ((xL, tL), (xR, tR), (x_ic, t_ic, rho_ic, u_ic), (x_i, t_i), (x_left, x_right, t_b))
 
     # Train XPINN
-    train(pinn_L, pinn_R, data, epochs=3000, lr=1e-3, batch_size=256)
+    train(pinn_L, pinn_R, data, epochs=2000, lr=1e-3, batch_size=256)
 
     # Save trained models
     utils.save_model(pinn_L, "PINN_Project/checkpoints/pinn_L.pth")
     utils.save_model(pinn_R, "PINN_Project/checkpoints/pinn_R.pth")
 
     # Plotting our results
-    utils.plot_spacetime(pinn_L, pinn_R, 
-                        save_path="results/spacetime.png")
+    utils.plot_spacetime(pinn_L, pinn_R, save_path="PINN_Project/results/spacetime.png")
+    utils.heatmap_loss(pinn_L, pinn_R, save_path = "PINN_Project/results/loss_heatmap.png")
     
-    utils.plot_solution(pinn_L, pinn_R, t_fixed=0, 
-                       save_path="results/solution_t00.png")
+    utils.plot_solution(pinn_L, pinn_R, t_fixed=0, save_path="PINN_Project/results/solution_t00.png")
     
-    utils.plot_solution(pinn_L, pinn_R, t_fixed=0.5, 
-                       save_path="results/solution_t05.png")
+    utils.plot_solution(pinn_L, pinn_R, t_fixed=0.5, save_path="PINN_Project/results/solution_t05.png")
     
-    utils.plot_solution(pinn_L, pinn_R, t_fixed=1, 
-                       save_path="results/solution_t10.png")
+    utils.plot_solution(pinn_L, pinn_R, t_fixed=1, save_path="PINN_Project/results/solution_t10.png")
+
+    utils.plot_solution(pinn_L, pinn_R, t_fixed=1.2, save_path="PINN_Project/results/solution_t12.png")
+
+    utils.plot_solution(pinn_L, pinn_R, t_fixed=1.4, save_path="PINN_Project/results/solution_t14.png")
+
+    utils.plot_solution(pinn_L, pinn_R, t_fixed=1.6, save_path="PINN_Project/results/solution_t16.png")
