@@ -54,6 +54,6 @@ def loss_fn(pinn_L, pinn_R, xL, tL, xR, tR, x_ic, t_ic, rho_ic, u_ic,
             torch.mean(rho_x_right**2) + torch.mean(u_x_right**2))
     
     # Total loss with weights
-    total_loss = L_pde + L_ic + 10.0 * L_interface + L_bc
+    total_loss = 25 * L_pde + 25 * L_ic + 5 * L_interface + L_bc
     
     return total_loss, (L_pde.item(), L_ic.item(), L_interface.item(), L_bc.item())
